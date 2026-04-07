@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Code 39 Encoder</title>
+  </head>
+  <body>
+    <div class="h-dvh w-full flex items-center justify-center" x-data="encoder">
+      <div class="flex flex-col gap-y-2 items-center">
+        <div>
+          <label class="block" for="">Text to encode:</label>
+          <input class="border rounded-md px-1" x-model="inputText" type="text" />
+        </div>
+
+        <!-- <div x-text="barcodePattern"></div> -->
+
+        <div class="flex mx-10">
+          <template x-for="(c, index) in barcodePattern" :key="index">
+            <div class="flex">
+              <template x-if="c === 'W'">
+                <div :class="'h-16 w-1 ' + currentColor(index)"></div>
+              </template>
+
+              <template x-if="c === 'N'">
+                <div :class="'h-16 w-0.5 ' + currentColor(index)"></div>
+              </template>
+
+              <template x-if="c === '@'">
+                <div class="h-16 w-0.5 bg-white"></div>
+              </template>
+            </div>
+          </template>
+        </div>
+        <div x-text="outputText"></div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("alpine:init", () => {
+        Alpine.data("encoder", () => ({
+          inputText: "",
+          startColor: "bg-black",
+          currentColor(index) {
+            if ((index + 1) % 2 != 0) {
+              return "bg-black";
+            }
+
+            return "bg-white";
+          },
+          get outputText() {
+            return `*${this.inputText.toUpperCase()}*`;
+          },
+          get barcodePattern() {
+            let temp = "";
+            for (let c of this.outputText) {
+              
+              let char = this.code39Inverse[c]
+              
+              if(typeof char === 'undefined'){
+                continue;
+              }
+
+              temp += this.code39Inverse[c]
+              temp += "@";
+              
+            }
+
+            return temp;
+          },
+
+          code39Inverse: {
+            0: "NNNWWNWNN",
+            1: "WNNWNNNNW",
+            2: "NNWWNNNNW",
+            3: "WNWWNNNNN",
+            4: "NNNWWNNNW",
+            5: "WNNWWNNNN",
+            6: "NNWWWNNNN",
+            7: "NNNWNNWNW",
+            8: "WNNWNNWNW",
+            9: "NNWWNNWNN",
+
+            A: "WNNNNWNNW",
+            B: "NNWNNWNNW",
+            C: "WNWNNWNNN",
+            D: "NNNNWWNNW",
+            E: "WNNNWWNNN",
+            F: "NNWNWWNNN",
+            G: "NNNNNWWNW",
+            H: "WNNNNWWNN",
+            I: "NNWNNWWNN",
+            J: "NNNNWWWNN",
+
+            K: "WNNNNNNWW",
+            L: "NNWNNNNWW",
+            M: "WNWNNNNWN",
+            N: "NNNNWNNWW",
+            O: "WNNNWNNWN",
+            P: "NNWNWNNWN",
+            Q: "NNNNNNWWW",
+            R: "WNNNNNWWN",
+            S: "NNWNNNWWN",
+            T: "NNNNWNWWN",
+
+            U: "WWNNNNNNW",
+            V: "NWWNNNNNW",
+            W: "WWWNNNNNN",
+            X: "NWNNWNNNW",
+            Y: "WWNNWNNNN",
+            Z: "NWWNWNNNN",
+
+            "-": "NWNNNNWNW",
+            ".": "WWNNNNWNN",
+            " ": "NWWNNNWNN",
+            $: "NWNWNWNNN",
+            "/": "NWNWNNNWN",
+            "+": "NWNNNWNWN",
+            "%": "NNNWNWNWN",
+
+            "*": "NWNNWNWNN",
+          },
+        }));
+      });
+    </script>
+  </body>
+</html>
