@@ -37,8 +37,22 @@
             </div>
           </template>
         </div>
+        
         <div x-text="outputText"></div>
+
+        <div x-text="barcodePattern"></div>
+
+        <div>
+
+            <canvas class="" x-ref="bcCanvas" width="200" height="75">
+
+            </canvas>
+        </div>
+
+        <div x-effect="drawCanvas(barcodePattern)"></div>
+
       </div>
+
     </div>
 
     <script>
@@ -46,6 +60,7 @@
         Alpine.data("encoder", () => ({
           inputText: "",
           startColor: "bg-black",
+          
           currentColor(index) {
             if ((index + 1) % 2 != 0) {
               return "bg-black";
@@ -53,9 +68,57 @@
 
             return "bg-white";
           },
+          
+          drawCanvas(value){
+              
+            const nWidth = 2
+            const wWidth = 4
+
+            let inputSize = this.inputText.length + 2
+            let canvasSize = inputSize * (7 * nWidth + 3 * wWidth)
+
+            const c = this.$refs.bcCanvas;
+            const ctx = c.getContext('2d');
+
+            ctx.canvas.width = canvasSize;
+            
+            ctx.clearRect(0, 0, 1000, 200);
+
+            let currentX = 0;
+
+            for(let i = 0; i < value.length; i++){
+
+              let char = value[i];
+              console.log(char)
+              
+              if(char == 'W'){
+                ctx.fillStyle = i % 2 > 0 ? 'white' : 'black'
+                ctx.fillRect(currentX, 0, wWidth, 100);
+                currentX += wWidth;
+
+              }
+
+              if(char == 'N'){
+                ctx.fillStyle = i % 2 > 0 ? 'white' : 'black'
+                ctx.fillRect(currentX, 0, nWidth, 100);
+                currentX += nWidth;
+
+              }
+
+              if(char == '@'){
+                ctx.fillStyle = 'white';
+                ctx.fillRect(currentX, 0, nWidth, 100);
+                currentX += nWidth;
+              }
+            
+            }
+
+          },
+          
           get outputText() {
             return `*${this.inputText.toUpperCase()}*`;
           },
+          
           get barcodePattern() {
             let temp = "";
             for (let c of this.outputText) {
