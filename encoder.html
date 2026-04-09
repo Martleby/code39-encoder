@@ -10,10 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <style>
-      #bcCanvas {  
-        image-rendering: pixelated; /* Chrome, Firefox */  
-        image-rendering: crisp-edges; /* Safari */  
-      } 
+      
     </style>
 
     <title>Code 39 Encoder</title>
@@ -28,6 +25,7 @@
 
         <!-- <div x-text="barcodePattern"></div> -->
 
+        <div>HTML</div>
         <div class="flex mx-10">
           <template x-for="(c, index) in barcodePattern" :key="index">
             <div class="flex">
@@ -46,21 +44,23 @@
           </template>
         </div>
         
-        <div class="bg-white p-1 text-xs" x-text="outputText"></div>
+        <div class="bg-white -mt-2 p-1 text-xs" x-text="outputText"></div>
 
         <!-- <div x-text="barcodePattern"></div> -->
 
-        <div x-effect="drawCanvas(barcodePattern)" class="mt-10">
+        <div class="mt-5">CANVAS</div>
+        <div x-effect="drawCanvas(barcodePattern)">
 
-            <canvas class="" x-ref="bcCanvas" id="bcCanvas" width="200" height="64">
+            <canvas class="" x-ref="bcCanvas" id="bcCanvas" width="200" height="80">
 
             </canvas>
 
         </div>
 
-        <div x-effect="drawSvg(barcodePattern)" class="mt-10">
+        <div class="mt-5">SVG</div>
+        <div x-effect="drawSvg(barcodePattern)">
 
-          <svg class="" x-ref="bcSvg" height="64" width="300" xmlns="http://www.w3.org/2000/svg">
+          <svg class="" x-ref="bcSvg" height="100" width="300" xmlns="http://www.w3.org/2000/svg">
 
           </svg>
 
@@ -86,8 +86,9 @@
               
             const nWidth = 2
             const wWidth = 4
+            const barHeight = 64
 
-            let inputSize = this.inputText.length + 2
+            let inputSize = this.outputText.length
             let canvasSize = inputSize * (7 * nWidth + 3 * wWidth)
 
             const c = this.$refs.bcCanvas;
@@ -107,24 +108,29 @@
               ctx.fillStyle = i % 2 > 0 ? 'white' : 'black'
               
               if(char == 'W'){
-                ctx.fillRect(currentX, 0, wWidth, 100);
+                ctx.fillRect(currentX, 0, wWidth, barHeight);
                 currentX += wWidth;
 
               }
 
               if(char == 'N'){
-                ctx.fillRect(currentX, 0, nWidth, 100);
+                ctx.fillRect(currentX, 0, nWidth, barHeight);
                 currentX += nWidth;
 
               }
 
               if(char == '@'){
                 ctx.fillStyle = 'white';
-                ctx.fillRect(currentX, 0, nWidth, 100);
+                ctx.fillRect(currentX, 0, nWidth, barHeight);
                 currentX += nWidth;
               }
             
             }
+
+            ctx.font = "12px Arial";
+            ctx.fillStyle = 'black'
+            let txt = this.outputText
+            ctx.fillText(txt, (canvasSize / 2) - (ctx.measureText(txt).width / 2)  , 80);
 
           },
 
@@ -132,15 +138,16 @@
 
             const nWidth = 2
             const wWidth = 4
+            const barHeight = 64
 
             let svg = this.$refs.bcSvg;
 
-            console.log(svg);
-
-            let inputSize = this.inputText.length + 2
+            let inputSize = this.outputText.length
             let svgSize = inputSize * (7 * nWidth + 3 * wWidth)
 
             svg.innerHtml = "";
+            svg.text = "";
+            svg.replaceChildren();
             svg.setAttribute('width', svgSize + 'px');
 
             let currentX = 0;
@@ -153,7 +160,7 @@
 
                 rect.setAttributeNS( null,'x', currentX);
                 rect.setAttributeNS( null,'y', 0);
-                rect.setAttributeNS( null,'height','100' );
+                rect.setAttributeNS( null,'height', barHeight );
                 rect.setAttributeNS( null,'fill', fill);
 
                 let char = value[i];
@@ -176,13 +183,24 @@
 
                 svg.appendChild( rect );
 
-              
             }
+
+            let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+
+          
+            text.setAttribute('y', '80');
+            text.setAttribute('fill', '#black');
+            text.textContent = this.outputText;
+            svg.appendChild(text);
+            text.setAttribute('x', (svgSize / 2) - (text.getComputedTextLength() / 2));
+
+            
 
           },
           
           get outputText() {
-            return `*${this.inputText.toUpperCase()}*`;
+            let sanitized = this.inputText.toUpperCase().split('').filter(char => this.code39Inverse[char]).join('')
+            return `*${sanitized}*`;
           },
           
           get barcodePattern() {
