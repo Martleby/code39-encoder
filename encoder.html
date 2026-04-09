@@ -10,6 +10,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <style>
+
+      #bcCanvas {  
+        image-rendering: pixelated; /* Chrome, Firefox */  
+        image-rendering: crisp-edges; /* Safari */  
+      }  
       
     </style>
 
@@ -88,15 +93,15 @@
             const wWidth = 4
             const barHeight = 64
 
-            let inputSize = this.outputText.length
-            let canvasSize = inputSize * (7 * nWidth + 3 * wWidth)
+            let inputLength = this.outputText.length
+            let canvasWidth = inputLength * (7 * nWidth + 3 * wWidth)
 
             const c = this.$refs.bcCanvas;
             const ctx = c.getContext('2d');
 
-            ctx.canvas.width = canvasSize;
+            ctx.canvas.width = canvasWidth;
             
-            ctx.clearRect(0, 0, canvasSize, 200);
+            ctx.clearRect(0, 0, canvasWidth, 200);
 
             
             let currentX = 0;
@@ -130,7 +135,7 @@
             ctx.font = "12px Arial";
             ctx.fillStyle = 'black'
             let txt = this.outputText
-            ctx.fillText(txt, (canvasSize / 2) - (ctx.measureText(txt).width / 2)  , 80);
+            ctx.fillText(txt, (canvasWidth / 2) - (ctx.measureText(txt).width / 2)  , 80);
 
           },
 
@@ -142,13 +147,13 @@
 
             let svg = this.$refs.bcSvg;
 
-            let inputSize = this.outputText.length
-            let svgSize = inputSize * (7 * nWidth + 3 * wWidth)
+            let inputLength = this.outputText.length
+            let svgWidth = inputLength * (7 * nWidth + 3 * wWidth)
 
             svg.innerHtml = "";
             svg.text = "";
             svg.replaceChildren();
-            svg.setAttribute('width', svgSize + 'px');
+            svg.setAttribute('width', svgWidth + 'px');
 
             let currentX = 0;
 
@@ -156,22 +161,22 @@
 
                 let fill = i % 2 > 0 ? 'white' : 'black'
 
-                let rect = document.createElementNS("http://www.w3.org/2000/svg", 'rect' );
+                let rect = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
 
                 rect.setAttributeNS(null, 'x', currentX);
                 rect.setAttributeNS(null, 'y', 0);
-                rect.setAttributeNS(null, 'height', barHeight );
+                rect.setAttributeNS(null, 'height', barHeight);
                 rect.setAttributeNS(null, 'fill', fill);
 
                 let char = value[i];
 
                 if(char == 'W'){
-                  rect.setAttributeNS(null,'width', wWidth);
+                  rect.setAttributeNS(null, 'width', wWidth);
                   currentX += wWidth;
                 }
 
                 if(char == 'N'){
-                  rect.setAttributeNS(null,'width', nWidth);
+                  rect.setAttributeNS(null, 'width', nWidth);
                   currentX += nWidth;
                 }
 
@@ -188,9 +193,11 @@
             let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('y', '80');
             text.setAttribute('fill', '#black');
+            text.style.fontSize = "12px";
+            text.style.fontFamily = "Arial";
             text.textContent = this.outputText;
             svg.appendChild(text);
-            text.setAttribute('x', (svgSize / 2) - (text.getComputedTextLength() / 2));
+            text.setAttribute('x', (svgWidth / 2) - (text.getComputedTextLength() / 2));
 
           },
           
