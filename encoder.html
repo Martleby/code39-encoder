@@ -200,21 +200,12 @@
           },
           
           get barcodePattern() {
-            let temp = "";
-            for (let c of this.outputText) {
-              
-              let char = this.code39Inverse[c]
-              
-              if(typeof char === 'undefined'){
-                continue;
-              }
 
-              temp += this.code39Inverse[c]
-              temp += "@";
-              
-            }
+            return  [...this.outputText]
+                    .map(c => this.code39Inverse[c])
+                    .filter(char => char !== undefined)
+                    .join("@") + "@";
 
-            return temp;
           },
 
           get canvasWidth() {
