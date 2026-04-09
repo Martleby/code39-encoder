@@ -25,7 +25,7 @@
       <div class="flex flex-col gap-y-2 items-center">
         <div>
           <label class="block" for="">Text to encode:</label>
-          <input class="border rounded-md px-1" x-model="inputText" type="text" />
+          <input @keyup.escape="inputText=''" class="border rounded-md px-1" x-model="inputText" type="text" />
         </div>
 
         <!-- <div x-text="barcodePattern"></div> -->
@@ -80,6 +80,9 @@
         Alpine.data("encoder", () => ({
           inputText: "",
           startColor: "bg-black",
+          nWidth: 2,
+          wWidth: 4,
+          barHeight: 64,
           
           currentColor(index) {
 
@@ -89,12 +92,7 @@
           
           drawCanvas(value){
               
-            const nWidth = 2
-            const wWidth = 4
-            const barHeight = 64
-
-            let inputLength = this.outputText.length
-            let canvasWidth = inputLength * (7 * nWidth + 3 * wWidth)
+            let canvasWidth = this.outputText.length * (7 * this.nWidth + 3 * this.wWidth)
 
             const c = this.$refs.bcCanvas;
             const ctx = c.getContext('2d');
@@ -103,7 +101,6 @@
             
             ctx.clearRect(0, 0, canvasWidth, 200);
 
-            
             let currentX = 0;
 
             for(let i = 0; i < value.length; i++){
@@ -113,21 +110,21 @@
               ctx.fillStyle = i % 2 > 0 ? 'white' : 'black'
               
               if(char == 'W'){
-                ctx.fillRect(currentX, 0, wWidth, barHeight);
-                currentX += wWidth;
+                ctx.fillRect(currentX, 0, this.wWidth, this.barHeight);
+                currentX += this.wWidth;
 
               }
 
               if(char == 'N'){
-                ctx.fillRect(currentX, 0, nWidth, barHeight);
-                currentX += nWidth;
+                ctx.fillRect(currentX, 0, this.nWidth, this.barHeight);
+                currentX += this.nWidth;
 
               }
 
               if(char == '@'){
                 ctx.fillStyle = 'white';
-                ctx.fillRect(currentX, 0, nWidth, barHeight);
-                currentX += nWidth;
+                ctx.fillRect(currentX, 0, this.nWidth, this.barHeight);
+                currentX += this.nWidth;
               }
             
             }
@@ -135,20 +132,15 @@
             ctx.font = "12px Arial";
             ctx.fillStyle = 'black'
             let txt = this.outputText
-            ctx.fillText(txt, (canvasWidth / 2) - (ctx.measureText(txt).width / 2)  , 80);
+            ctx.fillText(txt, (canvasWidth / 2) - (ctx.measureText(txt).width / 2)  , this.barHeight + 20);
 
           },
 
           drawSvg(value){
 
-            const nWidth = 2
-            const wWidth = 4
-            const barHeight = 64
+            let svgWidth = this.outputText.length * (7 * this.nWidth + 3 * this.wWidth)
 
             let svg = this.$refs.bcSvg;
-
-            let inputLength = this.outputText.length
-            let svgWidth = inputLength * (7 * nWidth + 3 * wWidth)
 
             svg.innerHtml = "";
             svg.text = "";
@@ -165,25 +157,25 @@
 
                 rect.setAttributeNS(null, 'x', currentX);
                 rect.setAttributeNS(null, 'y', 0);
-                rect.setAttributeNS(null, 'height', barHeight);
+                rect.setAttributeNS(null, 'height', this.barHeight);
                 rect.setAttributeNS(null, 'fill', fill);
 
                 let char = value[i];
 
                 if(char == 'W'){
-                  rect.setAttributeNS(null, 'width', wWidth);
-                  currentX += wWidth;
+                  rect.setAttributeNS(null, 'width', this.wWidth);
+                  currentX += this.wWidth;
                 }
 
                 if(char == 'N'){
-                  rect.setAttributeNS(null, 'width', nWidth);
-                  currentX += nWidth;
+                  rect.setAttributeNS(null, 'width', this.nWidth);
+                  currentX += this.nWidth;
                 }
 
                 if(char == '@'){
-                  rect.setAttributeNS(null, 'width', nWidth);
+                  rect.setAttributeNS(null, 'width', this.nWidth);
                   rect.setAttributeNS(null, 'fill', '#fff');
-                  currentX += nWidth;
+                  currentX += this.nWidth;
                 }
 
                 svg.appendChild(rect);
