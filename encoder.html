@@ -92,14 +92,12 @@
           
           drawCanvas(value){
               
-            let canvasWidth = this.outputText.length * (7 * this.nWidth + 3 * this.wWidth)
-
             const c = this.$refs.bcCanvas;
             const ctx = c.getContext('2d');
 
-            ctx.canvas.width = canvasWidth;
+            ctx.canvas.width = this.canvasWidth;
             
-            ctx.clearRect(0, 0, canvasWidth, 200);
+            ctx.clearRect(0, 0, this.canvasWidth, 200);
 
             let currentX = 0;
 
@@ -132,20 +130,18 @@
             ctx.font = "12px Arial";
             ctx.fillStyle = 'black'
             let txt = this.outputText
-            ctx.fillText(txt, (canvasWidth / 2) - (ctx.measureText(txt).width / 2)  , this.barHeight + 20);
+            ctx.fillText(txt, (this.canvasWidth / 2) - (ctx.measureText(txt).width / 2)  , this.barHeight + 20);
 
           },
 
           drawSvg(value){
-
-            let svgWidth = this.outputText.length * (7 * this.nWidth + 3 * this.wWidth)
 
             let svg = this.$refs.bcSvg;
 
             svg.innerHtml = "";
             svg.text = "";
             svg.replaceChildren();
-            svg.setAttribute('width', svgWidth + 'px');
+            svg.setAttribute('width', this.canvasWidth + 'px');
 
             let currentX = 0;
 
@@ -189,12 +185,17 @@
             text.style.fontFamily = "Arial";
             text.textContent = this.outputText;
             svg.appendChild(text);
-            text.setAttribute('x', (svgWidth / 2) - (text.getComputedTextLength() / 2));
+            text.setAttribute('x', (this.canvasWidth / 2) - (text.getComputedTextLength() / 2));
 
           },
           
           get outputText() {
-            let sanitized = this.inputText.toUpperCase().split('').filter(char => this.code39Inverse[char]).join('')
+            let sanitized = this.inputText
+                .toUpperCase()
+                .split('')
+                .filter(char => this.code39Inverse[char])
+                .join('')
+
             return `*${sanitized}*`;
           },
           
@@ -214,6 +215,10 @@
             }
 
             return temp;
+          },
+
+          get canvasWidth() {
+            return this.outputText.length * (7 * this.nWidth + 3 * this.wWidth)
           },
 
           code39Inverse: {
