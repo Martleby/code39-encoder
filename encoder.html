@@ -46,18 +46,25 @@
           </template>
         </div>
         
-        <div x-text="outputText"></div>
+        <div class="bg-white p-1 text-xs" x-text="outputText"></div>
 
         <!-- <div x-text="barcodePattern"></div> -->
 
-        <div>
+        <div x-effect="drawCanvas(barcodePattern)" class="mt-10">
 
             <canvas class="" x-ref="bcCanvas" id="bcCanvas" width="200" height="64">
 
             </canvas>
+
         </div>
 
-        <div x-effect="drawCanvas(barcodePattern)"></div>
+        <div x-effect="drawSvg(barcodePattern)" class="mt-10">
+
+          <svg class="" x-ref="bcSvg" height="64" width="300" xmlns="http://www.w3.org/2000/svg">
+
+          </svg>
+
+        </div>
 
       </div>
 
@@ -70,11 +77,9 @@
           startColor: "bg-black",
           
           currentColor(index) {
-            if ((index + 1) % 2 != 0) {
-              return "bg-black";
-            }
 
-            return "bg-white";
+            return index % 2 > 0 ? 'bg-white' : 'bg-black';
+
           },
           
           drawCanvas(value){
@@ -92,22 +97,22 @@
             
             ctx.clearRect(0, 0, canvasSize, 200);
 
+            
             let currentX = 0;
 
             for(let i = 0; i < value.length; i++){
 
               let char = value[i];
-              console.log(char)
+
+              ctx.fillStyle = i % 2 > 0 ? 'white' : 'black'
               
               if(char == 'W'){
-                ctx.fillStyle = i % 2 > 0 ? 'white' : 'black'
                 ctx.fillRect(currentX, 0, wWidth, 100);
                 currentX += wWidth;
 
               }
 
               if(char == 'N'){
-                ctx.fillStyle = i % 2 > 0 ? 'white' : 'black'
                 ctx.fillRect(currentX, 0, nWidth, 100);
                 currentX += nWidth;
 
@@ -119,6 +124,59 @@
                 currentX += nWidth;
               }
             
+            }
+
+          },
+
+          drawSvg(value){
+
+            const nWidth = 2
+            const wWidth = 4
+
+            let svg = this.$refs.bcSvg;
+
+            console.log(svg);
+
+            let inputSize = this.inputText.length + 2
+            let svgSize = inputSize * (7 * nWidth + 3 * wWidth)
+
+            svg.innerHtml = "";
+            svg.setAttribute('width', svgSize + 'px');
+
+            let currentX = 0;
+
+            for(let i = 0; i < value.length; i++){
+
+                let fill = i % 2 > 0 ? 'white' : 'black'
+
+                let rect = document.createElementNS("http://www.w3.org/2000/svg", 'rect' );
+
+                rect.setAttributeNS( null,'x', currentX);
+                rect.setAttributeNS( null,'y', 0);
+                rect.setAttributeNS( null,'height','100' );
+                rect.setAttributeNS( null,'fill', fill);
+
+                let char = value[i];
+
+                if(char == 'W'){
+                  rect.setAttributeNS( null,'width', wWidth);
+                  currentX += wWidth;
+                }
+
+                if(char == 'N'){
+                  rect.setAttributeNS( null,'width', nWidth);
+                  currentX += nWidth;
+                }
+
+                if(char == '@'){
+                  rect.setAttributeNS( null,'width', nWidth);
+                  rect.setAttributeNS( null,'fill', '#fff');
+                  currentX += nWidth;
+                }
+
+                svg.appendChild( rect );
+
+              
             }
 
           },
