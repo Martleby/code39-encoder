@@ -51,7 +51,7 @@
         <div class="mt-5">CANVAS</div>
         <div x-effect="drawCanvas(barcodePattern)">
 
-            <canvas class="" x-ref="bcCanvas" id="bcCanvas" width="200" height="80">
+            <canvas class="" x-ref="bcCanvas" id="bcCanvas" width="200" height="100">
 
             </canvas>
 
@@ -158,43 +158,39 @@
 
                 let rect = document.createElementNS("http://www.w3.org/2000/svg", 'rect' );
 
-                rect.setAttributeNS( null,'x', currentX);
-                rect.setAttributeNS( null,'y', 0);
-                rect.setAttributeNS( null,'height', barHeight );
-                rect.setAttributeNS( null,'fill', fill);
+                rect.setAttributeNS(null, 'x', currentX);
+                rect.setAttributeNS(null, 'y', 0);
+                rect.setAttributeNS(null, 'height', barHeight );
+                rect.setAttributeNS(null, 'fill', fill);
 
                 let char = value[i];
 
                 if(char == 'W'){
-                  rect.setAttributeNS( null,'width', wWidth);
+                  rect.setAttributeNS(null,'width', wWidth);
                   currentX += wWidth;
                 }
 
                 if(char == 'N'){
-                  rect.setAttributeNS( null,'width', nWidth);
+                  rect.setAttributeNS(null,'width', nWidth);
                   currentX += nWidth;
                 }
 
                 if(char == '@'){
-                  rect.setAttributeNS( null,'width', nWidth);
-                  rect.setAttributeNS( null,'fill', '#fff');
+                  rect.setAttributeNS(null, 'width', nWidth);
+                  rect.setAttributeNS(null, 'fill', '#fff');
                   currentX += nWidth;
                 }
 
-                svg.appendChild( rect );
+                svg.appendChild(rect);
 
             }
 
             let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-
-          
             text.setAttribute('y', '80');
             text.setAttribute('fill', '#black');
             text.textContent = this.outputText;
             svg.appendChild(text);
             text.setAttribute('x', (svgSize / 2) - (text.getComputedTextLength() / 2));
-
-            
 
           },
           
