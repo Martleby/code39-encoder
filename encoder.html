@@ -107,16 +107,16 @@
 
             let currentX = 0;
 
-            for(let i = 0; i < value.length; i++){
+            [...value].forEach((char, i) => {
 
-              let char = value[i];
               let item = config[char]
 
               ctx.fillStyle = item.forceColor || i % 2 > 0 ? 'white' : 'black'
               ctx.fillRect(currentX, 0, item.width, this.barHeight);
               currentX += item.width;
-            
-            }
+
+            });
+
 
             ctx.font = "12px Arial";
             ctx.fillStyle = 'black'
@@ -141,24 +141,23 @@
 
             let currentX = 0;
 
-            for(let i = 0; i < value.length; i++){
+            [...value].forEach((char, i) => {
 
-                let char = value[i];
-                let item = config[char];
+              let item = config[char];
 
-                let rect = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+              let rect = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
 
-                rect.setAttributeNS(null, 'x', currentX);
-                rect.setAttributeNS(null, 'y', 0);
-                rect.setAttributeNS(null, 'height', this.barHeight);
-                rect.setAttributeNS(null, 'fill', item.forceColor || i % 2 > 0 ? 'white' : 'black');
-                rect.setAttributeNS(null, 'width', item.width);
+              rect.setAttributeNS(null, 'x', currentX);
+              rect.setAttributeNS(null, 'y', 0);
+              rect.setAttributeNS(null, 'height', this.barHeight);
+              rect.setAttributeNS(null, 'fill', item.forceColor || i % 2 > 0 ? 'white' : 'black');
+              rect.setAttributeNS(null, 'width', item.width);
 
-                currentX += item.width;
-                svg.appendChild(rect);
+              currentX += item.width;
+              svg.appendChild(rect);
 
-            }
-
+            })
+            
             let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('y', '80');
             text.setAttribute('fill', '#black');
