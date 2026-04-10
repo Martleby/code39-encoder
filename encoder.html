@@ -99,31 +99,22 @@
             
             ctx.clearRect(0, 0, this.canvasWidth, 200);
 
+            const config = {
+              'W': { width: this.wWidth },
+              'N': { width: this.nWidth },
+              '@': { width: this.nWidth, forceColor: 'white' }
+            };
+
             let currentX = 0;
 
             for(let i = 0; i < value.length; i++){
 
               let char = value[i];
+              let item = config[char]
 
-              ctx.fillStyle = i % 2 > 0 ? 'white' : 'black'
-              
-              if(char == 'W'){
-                ctx.fillRect(currentX, 0, this.wWidth, this.barHeight);
-                currentX += this.wWidth;
-
-              }
-
-              if(char == 'N'){
-                ctx.fillRect(currentX, 0, this.nWidth, this.barHeight);
-                currentX += this.nWidth;
-
-              }
-
-              if(char == '@'){
-                ctx.fillStyle = 'white';
-                ctx.fillRect(currentX, 0, this.nWidth, this.barHeight);
-                currentX += this.nWidth;
-              }
+              ctx.fillStyle = item.forceColor || i % 2 > 0 ? 'white' : 'black'
+              ctx.fillRect(currentX, 0, item.width, this.barHeight);
+              currentX += item.width;
             
             }
 
@@ -138,42 +129,32 @@
 
             let svg = this.$refs.bcSvg;
 
-            svg.innerHtml = "";
-            svg.text = "";
             svg.replaceChildren();
             svg.setAttribute('width', this.canvasWidth + 'px');
+
+            const config = {
+              'W': { width: this.wWidth },
+              'N': { width: this.nWidth },
+              '@': { width: this.nWidth, forceColor: 'white' }
+            };
+            
 
             let currentX = 0;
 
             for(let i = 0; i < value.length; i++){
 
-                let fill = i % 2 > 0 ? 'white' : 'black'
+                let char = value[i];
+                let item = config[char];
 
                 let rect = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
 
                 rect.setAttributeNS(null, 'x', currentX);
                 rect.setAttributeNS(null, 'y', 0);
                 rect.setAttributeNS(null, 'height', this.barHeight);
-                rect.setAttributeNS(null, 'fill', fill);
+                rect.setAttributeNS(null, 'fill', item.forceColor || i % 2 > 0 ? 'white' : 'black');
+                rect.setAttributeNS(null, 'width', item.width);
 
-                let char = value[i];
-
-                if(char == 'W'){
-                  rect.setAttributeNS(null, 'width', this.wWidth);
-                  currentX += this.wWidth;
-                }
-
-                if(char == 'N'){
-                  rect.setAttributeNS(null, 'width', this.nWidth);
-                  currentX += this.nWidth;
-                }
-
-                if(char == '@'){
-                  rect.setAttributeNS(null, 'width', this.nWidth);
-                  rect.setAttributeNS(null, 'fill', '#fff');
-                  currentX += this.nWidth;
-                }
-
+                currentX += item.width;
                 svg.appendChild(rect);
 
             }
@@ -190,13 +171,11 @@
           },
           
           get outputText() {
-            let sanitized = this.inputText
-                .toUpperCase()
-                .split('')
+            return '*' + [...this.inputText]
+                .map(c => c.toUpperCase())
                 .filter(char => this.code39Inverse[char])
-                .join('')
+                .join('') + '*'
 
-            return `*${sanitized}*`;
           },
           
           get barcodePattern() {
