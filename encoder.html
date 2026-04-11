@@ -63,7 +63,7 @@
         </div>
 
         <div class="mt-5">SVG</div>
-        <div x-effect="drawSvg(barcodePattern)">
+        <div x-effect="drawSvg()">
 
           <svg class="" x-ref="bcSvg" height="100" width="300" xmlns="http://www.w3.org/2000/svg">
 
@@ -80,9 +80,12 @@
         Alpine.data("encoder", () => ({
           inputText: "",
           startColor: "bg-black",
-          nWidth: 2,
-          wWidth: 4,
           barHeight: 64,
+          config: {
+              'W': { width: 4 },
+              'N': { width: 2 },
+              '@': { width: 2, forceColor: 'white' }
+          },
           
           currentColor(index) {
 
@@ -90,7 +93,7 @@
 
           },
           
-          drawCanvas(value){
+          drawCanvas(){
               
             const c = this.$refs.bcCanvas;
             const ctx = c.getContext('2d');
@@ -99,24 +102,11 @@
             
             ctx.clearRect(0, 0, this.canvasWidth, 200);
 
-            const config = {
-              'W': { width: this.wWidth },
-              'N': { width: this.nWidth },
-              '@': { width: this.nWidth, forceColor: 'white' }
-            };
-
-            let currentX = 0;
-
-            [...value].forEach((char, i) => {
-
-              let item = config[char]
-
-              ctx.fillStyle = item.forceColor || i % 2 > 0 ? 'white' : 'black'
-              ctx.fillRect(currentX, 0, item.width, this.barHeight);
-              currentX += item.width;
+            this.getBarcodeSteps().forEach(step => {
+              ctx.fillStyle = step.colour
+              ctx.fillRect(step.x, 0, step.width, this.barHeight);
 
             });
-
 
             ctx.font = "12px Arial";
             ctx.fillStyle = 'black'
@@ -125,38 +115,26 @@
 
           },
 
-          drawSvg(value){
+          drawSvg(){
 
             let svg = this.$refs.bcSvg;
 
             svg.replaceChildren();
             svg.setAttribute('width', this.canvasWidth + 'px');
 
-            const config = {
-              'W': { width: this.wWidth },
-              'N': { width: this.nWidth },
-              '@': { width: this.nWidth, forceColor: 'white' }
-            };
-            
-
             let currentX = 0;
 
-            [...value].forEach((char, i) => {
-
-              let item = config[char];
-
+            this.getBarcodeSteps().forEach(step => {
               let rect = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
-
-              rect.setAttributeNS(null, 'x', currentX);
+              rect.setAttributeNS(null, 'x', step.x);
               rect.setAttributeNS(null, 'y', 0);
               rect.setAttributeNS(null, 'height', this.barHeight);
-              rect.setAttributeNS(null, 'fill', item.forceColor || i % 2 > 0 ? 'white' : 'black');
-              rect.setAttributeNS(null, 'width', item.width);
-
-              currentX += item.width;
+              rect.setAttributeNS(null, 'fill', step.colour);
+              rect.setAttributeNS(null, 'width', step.width);
               svg.appendChild(rect);
 
             })
+
             
             let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('y', '80');
@@ -187,7 +165,30 @@
           },
 
           get canvasWidth() {
-            return this.outputText.length * (7 * this.nWidth + 3 * this.wWidth)
+            return this.outputText.length * (7 * this.config.N.width + 3 * this.config.W.width)
+          },
+
+          getBarcodeSteps() {
+
+            let currentX = 0
+
+            return [...this.barcodePattern].map((char, index) => {
+
+              let item = this.config[char]
+
+              const step = {
+                x: currentX,
+                width: item.width,
+                colour: item.forceColor || index % 2 > 0 ? 'white' : 'black'
+
+              };
+
+              currentX += item.width
+
+              return step
+
+            })
+
           },
 
           code39Inverse: {
