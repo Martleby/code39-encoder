@@ -28,33 +28,17 @@
           <input @keyup.escape="inputText=''" class="border rounded-md px-1" x-model="inputText" type="text" />
         </div>
 
-        <!-- <div x-text="barcodePattern"></div> -->
-
         <div>HTML</div>
         <div class="flex mx-10">
-          <template x-for="(c, index) in barcodePattern" :key="index">
-            <div class="flex">
-              <template x-if="c === 'W'">
-                <div :class="'h-16 w-1 ' + currentColor(index)"></div>
-              </template>
-
-              <template x-if="c === 'N'">
-                <div :class="'h-16 w-0.5 ' + currentColor(index)"></div>
-              </template>
-
-              <template x-if="c === '@'">
-                <div class="h-16 w-0.5 bg-white"></div>
-              </template>
-            </div>
+          <template x-for="(step, index) in getBarcodeSteps()" :key="index">
+            <div :class="`${step.cssColour} ${step.cssWidth} h-16`"></div>
           </template>
         </div>
         
         <div class="bg-white -mt-2 p-1 text-xs" x-text="outputText"></div>
 
-        <!-- <div x-text="barcodePattern"></div> -->
-
         <div class="mt-5">CANVAS</div>
-        <div x-effect="drawCanvas(barcodePattern)">
+        <div x-effect="drawCanvas()">
 
             <canvas class="" x-ref="bcCanvas" id="bcCanvas" width="200" height="100">
 
@@ -79,19 +63,13 @@
       document.addEventListener("alpine:init", () => {
         Alpine.data("encoder", () => ({
           inputText: "",
-          startColor: "bg-black",
           barHeight: 64,
           config: {
-              'W': { width: 4 },
-              'N': { width: 2 },
-              '@': { width: 2, forceColor: 'white' }
+              'W': { width: 4, cssWidth: 'w-1' },
+              'N': { width: 2, cssWidth: 'w-0.5' },
+              '@': { width: 2, cssWidth: 'w-0.5', forceColor: 'white', forceCssColor: 'bg-white' }
           },
           
-          currentColor(index) {
-
-            return index % 2 > 0 ? 'bg-white' : 'bg-black';
-
-          },
           
           drawCanvas(){
               
@@ -109,7 +87,7 @@
 
             ctx.font = "12px Arial";
             ctx.fillStyle = 'black'
-            ctx.fillText(txt, (this.canvasWidth / 2) - (ctx.measureText(this.outputText).width / 2)  , this.barHeight + 20);
+            ctx.fillText(this.outputText, (this.canvasWidth / 2) - (ctx.measureText(this.outputText).width / 2)  , this.barHeight + 20);
 
           },
 
@@ -175,7 +153,9 @@
               const step = {
                 x: currentX,
                 width: item.width,
-                colour: item.forceColor || index % 2 > 0 ? 'white' : 'black'
+                cssWidth: item.cssWidth,
+                colour: item.forceColor || index % 2 > 0 ? 'white' : 'black',
+                cssColour: item.forceCssColor || index % 2 > 0 ? 'bg-white' : 'bg-black'
 
               };
 
