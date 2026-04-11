@@ -20,25 +20,25 @@
 
     <title>Code 39 Encoder</title>
   </head>
-  <body>
+  <body class="">
     <div class="h-dvh w-full flex items-center justify-center" x-data="encoder">
       <div class="flex flex-col gap-y-2 items-center">
         <div>
-          <label class="block" for="">Text to encode:</label>
-          <input @keyup.escape="inputText=''" class="border rounded-md px-1" x-model="inputText" type="text" />
+          <label class="block" for="text">Text to encode:</label>
+          <input id="text" @keyup.escape="inputText=''" class="border rounded-md px-1" x-model="inputText" type="text" />
         </div>
 
         <div>HTML</div>
         <div class="flex mx-10">
           <template x-for="(step, index) in getBarcodeSteps()" :key="index">
-            <div :class="`${step.cssColour} ${step.cssWidth} h-16`"></div>
+            <div :class="`${step.cssColour} ${step.cssWidth} ${step.cssHeight}`"></div>
           </template>
         </div>
         
         <div class="bg-white -mt-2 p-1 text-xs" x-text="outputText"></div>
 
         <div class="mt-5">CANVAS</div>
-        <div x-effect="drawCanvas()">
+        <div x-effect="drawCanvas($refs.bcCanvas)">
 
             <canvas class="" x-ref="bcCanvas" id="bcCanvas" width="200" height="100">
 
@@ -47,7 +47,7 @@
         </div>
 
         <div class="mt-5">SVG</div>
-        <div x-effect="drawSvg()">
+        <div x-effect="drawSvg($refs.bcSvg)">
 
           <svg class="" x-ref="bcSvg" height="100" width="300" xmlns="http://www.w3.org/2000/svg">
 
@@ -63,17 +63,17 @@
       document.addEventListener("alpine:init", () => {
         Alpine.data("encoder", () => ({
           inputText: "",
-          barHeight: 64,
+          canvasHeight: 64,
           config: {
-              'W': { width: 4, cssWidth: 'w-1' },
-              'N': { width: 2, cssWidth: 'w-0.5' },
-              '@': { width: 2, cssWidth: 'w-0.5', forceColor: 'white', forceCssColor: 'bg-white' }
+              'W': { width: 4, height: 64, cssWidth: 'w-1', cssHeight: 'h-16' },
+              'N': { width: 2, height: 64,  cssWidth: 'w-0.5', cssHeight: 'h-16' },
+              '@': { width: 2, height: 64,  cssWidth: 'w-0.5', cssHeight: 'h-16', forceColor: 'white', forceCssColor: 'bg-white' }
           },
           
           
-          drawCanvas(){
+          drawCanvas(canvas){
               
-            const ctx = this.$refs.bcCanvas.getContext('2d');
+            const ctx = canvas.getContext('2d');
 
             ctx.canvas.width = this.canvasWidth;
             
@@ -81,19 +81,19 @@
 
             this.getBarcodeSteps().forEach(step => {
               ctx.fillStyle = step.colour
-              ctx.fillRect(step.x, 0, step.width, this.barHeight);
+              ctx.fillRect(step.x, 0, step.width, step.height);
 
             });
 
             ctx.font = "12px Arial";
             ctx.fillStyle = 'black'
-            ctx.fillText(this.outputText, (this.canvasWidth / 2) - (ctx.measureText(this.outputText).width / 2)  , this.barHeight + 20);
+            ctx.fillText(this.outputText, (this.canvasWidth / 2) - (ctx.measureText(this.outputText).width / 2)  , this.canvasHeight + 20);
 
           },
 
-          drawSvg(){
+          drawSvg(canvas){
 
-            let svg = this.$refs.bcSvg;
+            let svg = canvas;
 
             svg.replaceChildren();
             svg.setAttribute('width', this.canvasWidth + 'px');
@@ -102,7 +102,7 @@
               let rect = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
               rect.setAttributeNS(null, 'x', step.x);
               rect.setAttributeNS(null, 'y', 0);
-              rect.setAttributeNS(null, 'height', this.barHeight);
+              rect.setAttributeNS(null, 'height', step.height);
               rect.setAttributeNS(null, 'fill', step.colour);
               rect.setAttributeNS(null, 'width', step.width);
               svg.appendChild(rect);
@@ -111,7 +111,7 @@
 
             
             let text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            text.setAttribute('y', '80');
+            text.setAttribute('y', this.canvasHeight + 20);
             text.setAttribute('fill', '#black');
             text.style.fontSize = "12px";
             text.style.fontFamily = "Arial";
@@ -153,7 +153,9 @@
               const step = {
                 x: currentX,
                 width: item.width,
+                height: item.height,
                 cssWidth: item.cssWidth,
+                cssHeight: item.cssHeight,
                 colour: item.forceColor || index % 2 > 0 ? 'white' : 'black',
                 cssColour: item.forceCssColor || index % 2 > 0 ? 'bg-white' : 'bg-black'
 
