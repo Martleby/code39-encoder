@@ -95,8 +95,7 @@
           
           drawCanvas(){
               
-            const c = this.$refs.bcCanvas;
-            const ctx = c.getContext('2d');
+            const ctx = this.$refs.bcCanvas.getContext('2d');
 
             ctx.canvas.width = this.canvasWidth;
             
@@ -110,8 +109,7 @@
 
             ctx.font = "12px Arial";
             ctx.fillStyle = 'black'
-            let txt = this.outputText
-            ctx.fillText(txt, (this.canvasWidth / 2) - (ctx.measureText(txt).width / 2)  , this.barHeight + 20);
+            ctx.fillText(txt, (this.canvasWidth / 2) - (ctx.measureText(this.outputText).width / 2)  , this.barHeight + 20);
 
           },
 
@@ -121,8 +119,6 @@
 
             svg.replaceChildren();
             svg.setAttribute('width', this.canvasWidth + 'px');
-
-            let currentX = 0;
 
             this.getBarcodeSteps().forEach(step => {
               let rect = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
